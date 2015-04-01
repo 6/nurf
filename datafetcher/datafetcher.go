@@ -9,12 +9,13 @@ import (
 
 type Match struct {
     Id string
+    Region string
     ApiKey string
     DataDirectory string
 }
 
 func (match *Match) Url() (string) {
-    return fmt.Sprintf("https://na.api.pvp.net/api/lol/na/v2.2/match/%s?includeTimeline=true&api_key=%s", match.Id, match.ApiKey)
+    return fmt.Sprintf("https://%s.api.pvp.net/api/lol/%s/v2.2/match/%s?includeTimeline=true&api_key=%s", match.Region, match.Region, match.Id, match.ApiKey)
 }
 
 func (match *Match) DataFilePath() (string) {
@@ -39,7 +40,7 @@ func (match *Match) FetchAndSave() (error) {
 }
 
 func main() {
-    match := Match{Id: "1778704162", ApiKey: os.Getenv("RIOT_API_KEY"), DataDirectory: "../data"}
+    match := Match{Id: "1778704162", Region: "na", ApiKey: os.Getenv("RIOT_API_KEY"), DataDirectory: "../data"}
     err := match.FetchAndSave()
     if err != nil {
         fmt.Println(err)
