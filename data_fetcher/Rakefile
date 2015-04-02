@@ -1,0 +1,23 @@
+namespace :matches do
+  require './match'
+
+  desc "Fetch matches for all regions for recent datetime buckets"
+  task :fetch_and_save do
+    Match.recent_datetime_buckets(4).each do |datetime_bucket|
+      puts "Finding matches from #{Time.at(datetime_bucket)} (#{datetime_bucket})"
+      Match::REGIONS.each do |region|
+        puts "=> Fetching match data for #{region}"
+        matches = Match.where(region: region, datetime_bucket: datetime_bucket)
+        sleep 1 # Enforce API rate limit
+
+        puts "   Found #{matches.size}"
+        matches.each do |match|
+          file_path = "../data/#{match.id}.json.gz"
+          next  if File.exist?(file_path)
+          match.save_to(file_path)
+          sleep 1 # Enforce API rate limit (1 req/s)
+        end
+      end
+    end
+  end
+end

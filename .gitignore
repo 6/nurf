@@ -7,3 +7,4 @@ _test
 
 data/*
 !.keep
+.idea
