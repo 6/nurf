@@ -23,6 +23,6 @@ class AnalysisHelper
   end
 
   def self.save_to_aggregate_data(name, data)
-    File.write("../aggregate_data/#{name}.json", data.to_json)
+    File.write("../aggregate_data/#{name}.json", JSON.pretty_generate(data))
   end
 end
