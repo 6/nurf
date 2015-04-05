@@ -6,7 +6,7 @@ namespace :data do
       begin
         json = Zlib::GzipReader.open(filename) { |gz| JSON.parse(gz.read) }
         yield json, i
-      rescue => e
+      rescue JSON::ParserError => e
         # In rare cases, JSON may be invalid
         puts "Invalid: #{filename}"
       end
