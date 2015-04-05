@@ -31,4 +31,21 @@ namespace :bans do
     end
     AnalysisHelper.save_to_aggregate_data("first_ban_rates", rates)
   end
+
+  task analyze_win_rates_by_ban: :environment do
+    rates = {}
+    (AnalysisHelper.regions + ["all"]).each do |region|
+      puts "Analyzing win rates by bans by region: #{region}"
+      rates[region] = {}
+      AnalysisHelper.champion_ids.each do |champion_id|
+        scope = Ban.where(champion_id: champion_id)
+        scope = scope.where(region: region)  if region != "all"
+        ban_count = scope.count
+        ban_and_won_count = scope.where(team_that_banned_won: true).count
+        win_rate_percent = (ban_and_won_count / ban_count.to_f) * 100
+        rates[region][champion_id] = win_rate_percent
+      end
+    end
+    AnalysisHelper.save_to_aggregate_data("win_rates_by_ban", rates)
+  end
 end
