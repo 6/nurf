@@ -30,4 +30,21 @@ namespace :picks do
     end
     AnalysisHelper.save_to_aggregate_data("match_duration_seconds_by_champion", durations)
   end
+
+  task analyze_pick_rates_by_champion: :environment do
+    rates = {}
+    (AnalysisHelper.regions + ["all"]).each do |region|
+      puts "Analyzing pick rates by region: #{region}"
+      rates[region] = {}
+      AnalysisHelper.champion_ids.each do |champion_id|
+        scope = Pick.where(champion_id: champion_id)
+        scope = scope.where(region: region)  if region != "all"
+        pick_count = scope.count
+        match_count = AnalysisHelper.match_count_for_region(region)
+        pick_rate_percent = (pick_count.to_f / match_count) * 100
+        rates[region][champion_id] = pick_rate_percent
+      end
+    end
+    AnalysisHelper.save_to_aggregate_data("pick_rates_by_champion", rates)
+  end
 end
