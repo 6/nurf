@@ -15,4 +15,19 @@ namespace :picks do
     end
     AnalysisHelper.save_to_aggregate_data("win_rates_by_champion", rates)
   end
+
+  task analyze_match_duration_seconds_by_champion: :environment do
+    durations = {}
+    (AnalysisHelper.regions + ["all"]).each do |region|
+      puts "Analyzing match durations by region: #{region}"
+      durations[region] = {}
+      AnalysisHelper.champion_ids.each do |champion_id|
+        scope = Pick.where(champion_id: champion_id)
+        scope = scope.where(region: region)  if region != "all"
+        average_match_duration_seconds = scope.average(:match_duration_seconds).to_f
+        durations[region][champion_id] = average_match_duration_seconds
+      end
+    end
+    AnalysisHelper.save_to_aggregate_data("match_duration_seconds_by_champion", durations)
+  end
 end
